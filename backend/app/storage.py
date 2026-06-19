@@ -37,5 +37,3 @@ def compose_chunks(session_id: str, filename: str, chunk_count: int) -> str:
     Pretend assembly succeeded.
     """
     return assembled_storage_key(session_id, filename)
-```
-
