@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-100 antialiased font-sans;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-700 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-600;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] rounded-2xl;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300;
+  }
+  .glass-card-hover:hover {
+    @apply bg-white/[0.07] border-white/[0.14] -translate-y-0.5;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-400 via-purple-400 to-pink-400;
+  }
+
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.2));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .btn-primary {
+    @apply px-5 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-xl font-medium 
+           transition-all duration-300 hover:from-brand-500 hover:to-brand-400 hover:shadow-glow-brand
+           active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none;
+  }
+
+  .btn-ghost {
+    @apply px-4 py-2 text-slate-400 hover:text-white hover:bg-white/[0.06] rounded-lg transition-all duration-200;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 bg-white/[0.04] border border-white/[0.1] rounded-xl text-white 
+           placeholder-slate-500 transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500/50 focus:bg-white/[0.06];
+  }
+
+  .select-field {
+    @apply w-full px-4 py-3 bg-white/[0.04] border border-white/[0.1] rounded-xl text-white 
+           transition-all duration-200 appearance-none cursor-pointer
+           focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500/50;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 20px;
+  }
+  .select-field option {
+    @apply bg-slate-800 text-white;
+  }
+
+  .status-badge {
+    @apply px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase;
+  }
+  .status-succeeded {
+    @apply bg-emerald-500/15 text-emerald-400 border border-emerald-500/20;
+  }
+  .status-failed {
+    @apply bg-red-500/15 text-red-400 border border-red-500/20;
+  }
+  .status-running {
+    @apply bg-blue-500/15 text-blue-400 border border-blue-500/20;
+  }
+  .status-pending {
+    @apply bg-amber-500/15 text-amber-400 border border-amber-500/20;
+  }
+
+  .progress-bar {
+    @apply h-2 rounded-full overflow-hidden bg-white/[0.06];
+  }
+  .progress-bar-fill {
+    @apply h-full rounded-full transition-all duration-500 ease-out;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6, #a78bfa);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+  .progress-bar-fill-success {
+    background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+  .progress-bar-fill-error {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+  }
+}
+
+@layer utilities {
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+}

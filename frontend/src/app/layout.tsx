@@ -1,0 +1,23 @@
+import type { Metadata } from 'next';
+import './globals.css';
+import { Providers } from './providers';
+
+export const metadata: Metadata = {
+  title: 'Xeno Validation Platform',
+  description: 'Enterprise-grade transaction data validation and processing platform',
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className="dark">
+      <body className="min-h-screen">
+        {/* Ambient background effects */}
+        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+          <div className="absolute -top-[40%] -left-[20%] w-[60%] h-[60%] rounded-full bg-brand-600/[0.06] blur-[120px] animate-float" />
+          <div className="absolute -bottom-[30%] -right-[20%] w-[50%] h-[50%] rounded-full bg-purple-600/[0.04] blur-[100px] animate-float" style={{ animationDelay: '3s' }} />
+        </div>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}

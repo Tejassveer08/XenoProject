@@ -1,0 +1,178 @@
+{
+  "name": "Default Transaction Rules",
+  "description": "Validation rules for orders, products, and payments with international phone and date support",
+  "dataset_types": ["orders", "products", "payments"],
+  "global": {
+    "default_country": "US",
+    "default_country_column": "country_code",
+    "country_phone_rules": {
+      "US": { "digits": 10 },
+      "IN": { "digits": 10, "prefix": "9" },
+      "SG": { "digits": 8 },
+      "GB": { "digits": 10 },
+      "AU": { "digits": 9 }
+    }
+  },
+  "datasets": {
+    "orders": {
+      "fields": [
+        {
+          "name": "order_id",
+          "type": "string",
+          "required": true,
+          "constraints": { "unique": true, "regex": "^[A-Za-z0-9_-]+$" }
+        },
+        {
+          "name": "customer_name",
+          "type": "string",
+          "required": true,
+          "constraints": { "min_length": 1, "max_length": 200 }
+        },
+        {
+          "name": "customer_phone",
+          "type": "phone",
+          "required": true,
+          "region_column": "country_code",
+          "default_region": "US"
+        },
+        {
+          "name": "country_code",
+          "type": "string",
+          "required": true,
+          "constraints": { "regex": "^[A-Z]{2}$" }
+        },
+        {
+          "name": "order_date",
+          "type": "datetime",
+          "required": true,
+          "constraints": {
+            "formats": ["%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%d/%m/%Y"],
+            "not_future": true
+          }
+        },
+        {
+          "name": "delivery_date",
+          "type": "datetime",
+          "required": false,
+          "constraints": {
+            "formats": ["%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%d/%m/%Y"]
+          }
+        },
+        {
+          "name": "order_amount",
+          "type": "float",
+          "required": true,
+          "constraints": { "min": 0 }
+        },
+        {
+          "name": "currency",
+          "type": "enum",
+          "required": true,
+          "constraints": { "allowed": ["USD", "EUR", "GBP", "INR", "SGD", "AUD"] }
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "required": true,
+          "constraints": { "allowed": ["pending", "confirmed", "shipped", "delivered", "cancelled"] }
+        }
+      ],
+      "cross_field_checks": [
+        {
+          "type": "date_order",
+          "left": "order_date",
+          "right": "delivery_date",
+          "message": "order_date must be before or equal to delivery_date"
+        },
+        {
+          "type": "future_tolerance",
+          "field": "order_date",
+          "max_future_days": 1
+        }
+      ]
+    },
+    "products": {
+      "fields": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "required": true,
+          "constraints": { "unique": true }
+        },
+        {
+          "name": "order_id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "product_name",
+          "type": "string",
+          "required": true,
+          "constraints": { "min_length": 1, "max_length": 300 }
+        },
+        {
+          "name": "quantity",
+          "type": "integer",
+          "required": true,
+          "constraints": { "min": 1, "max": 10000 }
+        },
+        {
+          "name": "unit_price",
+          "type": "float",
+          "required": true,
+          "constraints": { "min": 0 }
+        },
+        {
+          "name": "sku",
+          "type": "string",
+          "required": false,
+          "constraints": { "regex": "^[A-Za-z0-9-]+$" }
+        }
+      ],
+      "cross_field_checks": []
+    },
+    "payments": {
+      "fields": [
+        {
+          "name": "payment_id",
+          "type": "string",
+          "required": true,
+          "constraints": { "unique": true }
+        },
+        {
+          "name": "order_id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "payment_mode",
+          "type": "enum",
+          "required": true,
+          "constraints": { "allowed": ["credit_card", "debit_card", "upi", "paypal", "bank_transfer", "cash"] }
+        },
+        {
+          "name": "amount",
+          "type": "float",
+          "required": true,
+          "constraints": { "min": 0 }
+        },
+        {
+          "name": "payment_date",
+          "type": "datetime",
+          "required": true,
+          "constraints": {
+            "formats": ["%Y-%m-%d", "%Y-%m-%d %H:%M:%S"],
+            "not_future": true
+          }
+        },
+        {
+          "name": "transaction_ref",
+          "type": "string",
+          "required": false,
+          "constraints": { "max_length": 100 }
+        }
+      ],
+      "cross_field_checks": []
+    }
+  }
+}

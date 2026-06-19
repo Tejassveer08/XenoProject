@@ -1,0 +1,8 @@
+order_id,customer_name,customer_phone,country_code,order_date,delivery_date,order_amount,currency,status
+ORD-001,John Smith,+14155552671,US,2024-01-15,2024-01-20,150.50,USD,confirmed
+ORD-002,Priya Sharma,9876543210,IN,15/01/2024,20/01/2024,2500.00,INR,shipped
+ORD-003,Lee Wei,91234567,SG,2024-02-01,2024-02-05,89.99,SGD,delivered
+ORD-004,Bad Phone,123,US,2024-03-01,2024-02-28,50.00,USD,pending
+ORD-005,Future Order,+442071234567,GB,2030-01-01,2030-01-05,100.00,GBP,confirmed
+ORD-006,Negative Amount,+61412345678,AU,2024-04-10,2024-04-15,-10.00,AUD,cancelled
+ORD-007,Missing Currency,+14155559999,US,2024-05-01,,75.00,,pending

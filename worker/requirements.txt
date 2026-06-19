@@ -1,0 +1,11 @@
+celery==5.4.0
+redis==5.2.1
+sqlalchemy==2.0.36
+psycopg2-binary==2.9.10
+boto3==1.35.76
+polars==1.17.1
+phonenumbers==8.13.52
+python-dateutil==2.9.0.post0
+pendulum==3.0.0
+pydantic==2.10.3
+pydantic-settings==2.6.1
