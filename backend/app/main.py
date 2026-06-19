@@ -6,6 +6,16 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.routers import auth, files, upload_sessions, validation_jobs
+from passlib.context import CryptContext
+
+@app.get("/test-bcrypt")
+async def test_bcrypt():
+    try:
+        pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        hashed = pwd.hash("test123")
+        return {"ok": True, "hash": hashed[:20]}
+    except Exception as e:
+        return {"error": str(e)}
 
 app = FastAPI(
     title="Xeno Transaction Validation Platform",
