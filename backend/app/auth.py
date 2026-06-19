@@ -13,13 +13,6 @@ from app.config import settings
 from app.database import get_db
 from app.models import User
 
-from app.config import settings
-
-@router.get("/debug-db")
-async def debug_db():
-    return {
-        "database_url": settings.database_url[:30] + "..."
-    }
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
