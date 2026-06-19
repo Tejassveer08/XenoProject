@@ -7,11 +7,23 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.routers import auth, files, upload_sessions, validation_jobs
 
+from sqlalchemy import text
+from app.database import async_session
+
 app = FastAPI(
     title="Xeno Transaction Validation Platform",
     description="Scalable transaction data validation and processing API",
     version="1.0.0",
 )
+
+@app.get("/test-db")
+async def test_db():
+    try:
+        async with async_session() as db:
+            result = await db.execute(text("SELECT 1"))
+            return {"db": result.scalar()}
+    except Exception as e:
+        return {"error": str(e)}
 
 # ---------------- TEST ROUTES ----------------
 
