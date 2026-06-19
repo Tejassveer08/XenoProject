@@ -10,6 +10,13 @@ from app.config import settings
 from app.database import async_session
 from app.routers import auth, files, upload_sessions, validation_jobs
 
+@app.get("/env-check")
+async def env_check():
+    return {
+        "database_url": settings.database_url,
+        "database_url_sync": settings.database_url_sync,
+    }
+    
 @app.get("/db-check")
 async def db_check():
     return {
