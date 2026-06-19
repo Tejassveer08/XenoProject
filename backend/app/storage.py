@@ -1,6 +1,5 @@
 # app/storage.py
 
-```python
 import math
 
 
