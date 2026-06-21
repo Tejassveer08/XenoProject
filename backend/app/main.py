@@ -10,8 +10,6 @@ from app.config import settings
 from app.database import async_session
 from app.routers import auth, files, upload_sessions, validation_jobs
 
-from fastapi.middleware.cors import CORSMiddleware
-
 
 # ==================================================
 # FastAPI App
@@ -23,17 +21,24 @@ app = FastAPI(
     version="1.0.0",
 )
 
+
+# ==================================================
+# CORS
+# ==================================================
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://xenovalidate-mvd1pr888-tejassveer-singhs-projects.vercel.app",
-        "https://xenovalidate.vercel.app",  # add your production URL if different
-        "http://localhost:3000",  # for local development
+        "https://xenovalidate.vercel.app",
+        "http://localhost:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 # ==================================================
 # Diagnostic Routes
 # ==================================================
@@ -82,14 +87,11 @@ async def test_bcrypt():
             schemes=["bcrypt"],
             deprecated="auto"
         )
-
         hashed = pwd.hash("test123")
-
         return {
             "ok": True,
             "hash": hashed[:20]
         }
-
     except Exception as e:
         return {
             "ok": False,
@@ -102,35 +104,15 @@ async def db_ping():
     try:
         async with async_session() as session:
             result = await session.execute(text("SELECT 1"))
-
             return {
                 "ok": True,
                 "result": result.scalar()
             }
-
     except Exception as e:
         return {
             "ok": False,
             "error": str(e)
         }
-
-
-# ==================================================
-# CORS
-# ==================================================
-
-origins = [
-    origin.strip()
-    for origin in settings.cors_origins.split(",")
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 # ==================================================
