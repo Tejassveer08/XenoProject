@@ -34,14 +34,17 @@ def compute_chunk_count(file_size: int, chunk_size: int) -> int:
 
 
 # ==================================================
-# Upload / Download
+# Upload / Download (direct — bypasses signed URLs entirely)
 # ==================================================
 
 def upload_bytes(key: str, data: bytes, content_type: str = "application/octet-stream") -> None:
-    """Upload raw bytes directly to Supabase Storage."""
+    """Upload raw bytes directly to Supabase Storage using service role key."""
     url = f"{SUPABASE_URL}/storage/v1/object/{BUCKET}/{key}"
     headers = {**HEADERS, "Content-Type": content_type}
+    # Try PUT first (update), fall back to POST (create)
     response = httpx.put(url, content=data, headers=headers)
+    if response.status_code == 404:
+        response = httpx.post(url, content=data, headers=headers)
     response.raise_for_status()
 
 
@@ -54,21 +57,26 @@ def download_bytes(key: str) -> bytes:
 
 
 def generate_presigned_upload_url(bucket: str, key: str) -> str:
-    """Generate a signed upload URL valid for 1 hour."""
-    url = f"{SUPABASE_URL}/storage/v1/object/sign/upload/{BUCKET}/{key}"
-    response = httpx.post(url, json={"expiresIn": 3600}, headers=HEADERS)
-    response.raise_for_status()
-    signed = response.json().get("signedURL", "")
-    return f"{SUPABASE_URL}/storage/v1{signed}"
+    """
+    Instead of a real presigned URL (which requires bucket policies),
+    return a backend proxy URL. The frontend will POST chunk bytes to
+    our own /api/v1/upload-chunk endpoint which uses upload_bytes().
+    """
+    return f"/api/v1/upload-chunk/{key}"
 
 
 def generate_presigned_download_url(bucket: str, key: str) -> str:
     """Generate a signed download URL valid for 1 hour."""
     url = f"{SUPABASE_URL}/storage/v1/object/sign/{BUCKET}/{key}"
-    response = httpx.post(url, json={"expiresIn": 3600}, headers=HEADERS)
+    response = httpx.post(
+        url,
+        json={"expiresIn": 3600},
+        headers=HEADERS
+    )
     response.raise_for_status()
-    signed = response.json().get("signedURL", "")
-    return f"{SUPABASE_URL}/storage/v1{signed}"
+    data = response.json()
+    signed = data.get("signedURL") or data.get("signedUrl", "")
+    return f"{SUPABASE_URL}{signed}"
 
 
 # ==================================================
