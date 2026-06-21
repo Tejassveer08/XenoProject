@@ -53,6 +53,15 @@ def download_bytes(key: str) -> bytes:
     return response.content
 
 
+def generate_presigned_upload_url(bucket: str, key: str) -> str:
+    """Generate a signed upload URL valid for 1 hour."""
+    url = f"{SUPABASE_URL}/storage/v1/object/sign/upload/{BUCKET}/{key}"
+    response = httpx.post(url, json={"expiresIn": 3600}, headers=HEADERS)
+    response.raise_for_status()
+    signed = response.json().get("signedURL", "")
+    return f"{SUPABASE_URL}/storage/v1{signed}"
+
+
 def generate_presigned_download_url(bucket: str, key: str) -> str:
     """Generate a signed download URL valid for 1 hour."""
     url = f"{SUPABASE_URL}/storage/v1/object/sign/{BUCKET}/{key}"
