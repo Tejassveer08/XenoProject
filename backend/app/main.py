@@ -31,6 +31,8 @@ app.add_middleware(
     allow_origins=[
         "https://xenovalidate-mvd1pr888-tejassveer-singhs-projects.vercel.app",
         "https://xenovalidate.vercel.app",
+        "https://xeno-project-4h66.vercel.app",
+        "https://*.vercel.app",
         "http://localhost:3000",
     ],
     allow_credentials=True,
