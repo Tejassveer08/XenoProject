@@ -11,7 +11,6 @@ from app.database import async_session
 from app.routers import auth, files, upload_sessions, validation_jobs
 
 
-
 # ==================================================
 # FastAPI App
 # ==================================================
@@ -85,20 +84,11 @@ async def test_db():
 @app.get("/test-bcrypt")
 async def test_bcrypt():
     try:
-        pwd = CryptContext(
-            schemes=["bcrypt"],
-            deprecated="auto"
-        )
+        pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
         hashed = pwd.hash("test123")
-        return {
-            "ok": True,
-            "hash": hashed[:20]
-        }
+        return {"ok": True, "hash": hashed[:20]}
     except Exception as e:
-        return {
-            "ok": False,
-            "error": str(e)
-        }
+        return {"ok": False, "error": str(e)}
 
 
 @app.get("/db-ping")
@@ -106,15 +96,9 @@ async def db_ping():
     try:
         async with async_session() as session:
             result = await session.execute(text("SELECT 1"))
-            return {
-                "ok": True,
-                "result": result.scalar()
-            }
+            return {"ok": True, "result": result.scalar()}
     except Exception as e:
-        return {
-            "ok": False,
-            "error": str(e)
-        }
+        return {"ok": False, "error": str(e)}
 
 
 # ==================================================
@@ -125,6 +109,14 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(upload_sessions.router, prefix="/api/v1")
 app.include_router(validation_jobs.router, prefix="/api/v1")
 app.include_router(files.router, prefix="/api/v1")
+
+# Chunk upload endpoint (outside upload-sessions router prefix)
+app.add_api_route(
+    "/api/v1/upload-chunk/{path:path}",
+    upload_sessions.receive_chunk,
+    methods=["POST"],
+    tags=["upload-sessions"],
+)
 
 
 # ==================================================
@@ -191,11 +183,3 @@ async def get_rule_set(rule_set_id: str):
 
 
 app.include_router(rules_router, prefix="/api/v1")
-
-app.include_router(upload_sessions.router, prefix="/api/v1")
-app.add_api_route(
-    "/api/v1/upload-chunk/{path:path}",
-    upload_sessions.receive_chunk,
-    methods=["POST"],
-    tags=["upload-sessions"],
-)
