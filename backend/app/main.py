@@ -10,6 +10,8 @@ from app.config import settings
 from app.database import async_session
 from app.routers import auth, files, upload_sessions, validation_jobs
 
+from fastapi.middleware.cors import CORSMiddleware
+
 
 # ==================================================
 # FastAPI App
@@ -21,7 +23,17 @@ app = FastAPI(
     version="1.0.0",
 )
 
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://xenovalidate-mvd1pr888-tejassveer-singhs-projects.vercel.app",
+        "https://xenovalidate.vercel.app",  # add your production URL if different
+        "http://localhost:3000",  # for local development
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # ==================================================
 # Diagnostic Routes
 # ==================================================
