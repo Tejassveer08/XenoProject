@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,6 +20,7 @@ from app.storage import (
     compose_chunks,
     compute_chunk_count,
     generate_presigned_upload_url,
+    upload_bytes,
 )
 
 router = APIRouter(prefix="/upload-sessions", tags=["upload-sessions"])
@@ -32,7 +34,7 @@ def _session_response(session: UploadSession, include_urls: bool = False) -> Upl
                 chunk_index=i,
                 upload_url=generate_presigned_upload_url(
                     settings.s3_bucket_uploads,
-                    chunk_storage_key(session.id, i),
+                    chunk_storage_key(str(session.id), i),
                 ),
             )
             for i in range(session.chunk_count)
@@ -91,6 +93,30 @@ async def get_upload_session(
     return _session_response(session, include_urls=session.status == UploadStatus.UPLOADING)
 
 
+# ==================================================
+# Chunk Upload Endpoint
+# Receives raw chunk bytes from the frontend and
+# stores them directly in Supabase Storage.
+# URL pattern matches what generate_presigned_upload_url returns:
+# /api/v1/upload-chunk/uploads/{session_id}/chunks/{chunk_index}
+# ==================================================
+
+@router.post("/upload-chunk/{path:path}", tags=["upload-sessions"])
+async def receive_chunk(path: str, request: Request):
+    """
+    Accept raw chunk bytes from the frontend and store in Supabase Storage.
+    Path is the storage key: uploads/{session_id}/chunks/{chunk_index}
+    """
+    data = await request.body()
+    if not data:
+        raise HTTPException(status_code=400, detail="Empty chunk body")
+    try:
+        upload_bytes(path, data, content_type="application/octet-stream")
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Chunk upload failed: {exc}") from exc
+    return {"ok": True, "key": path, "size": len(data)}
+
+
 @router.post("/{session_id}/chunks/{chunk_index}/complete")
 async def mark_chunk_complete(
     session_id: str,
@@ -110,7 +136,10 @@ async def mark_chunk_complete(
         uploaded.sort()
         session.uploaded_chunks = uploaded
         await db.commit()
-    return {"uploaded_chunks": session.uploaded_chunks, "complete": len(uploaded) == session.chunk_count}
+    return {
+        "uploaded_chunks": session.uploaded_chunks,
+        "complete": len(uploaded) == session.chunk_count,
+    }
 
 
 @router.post("/{session_id}/complete", response_model=UploadSessionResponse)
@@ -140,8 +169,6 @@ async def complete_upload(
         storage_key = compose_chunks(session.id, session.filename, session.chunk_count)
         session.storage_key = storage_key
         session.status = UploadStatus.COMPLETED
-        from datetime import datetime
-
         session.completed_at = datetime.utcnow()
         await db.commit()
         await db.refresh(session)
@@ -155,7 +182,10 @@ async def complete_upload(
 
 async def _get_user_session(db: AsyncSession, session_id: str, user_id: str) -> UploadSession:
     result = await db.execute(
-        select(UploadSession).where(UploadSession.id == session_id, UploadSession.user_id == user_id)
+        select(UploadSession).where(
+            UploadSession.id == session_id,
+            UploadSession.user_id == user_id,
+        )
     )
     session = result.scalar_one_or_none()
     if not session:
