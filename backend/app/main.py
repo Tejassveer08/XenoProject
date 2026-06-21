@@ -11,6 +11,7 @@ from app.database import async_session
 from app.routers import auth, files, upload_sessions, validation_jobs
 
 
+
 # ==================================================
 # FastAPI App
 # ==================================================
@@ -190,3 +191,11 @@ async def get_rule_set(rule_set_id: str):
 
 
 app.include_router(rules_router, prefix="/api/v1")
+
+app.include_router(upload_sessions.router, prefix="/api/v1")
+app.add_api_route(
+    "/api/v1/upload-chunk/{path:path}",
+    upload_sessions.receive_chunk,
+    methods=["POST"],
+    tags=["upload-sessions"],
+)
